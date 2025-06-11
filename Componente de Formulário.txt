@@ -1,0 +1,56 @@
+import { useState, useEffect } from "react"
+
+const AdminForm = ({ fetchProducts, edit, setEdit }) => {
+  const [form, setForm] = useState({
+    name: "", price: "", description: "", image: ""
+  })
+
+  useEffect(() => {
+    if (edit) setForm(edit)
+  }, [edit])
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm({ ...form, [name]: value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    const method = edit ? "PUT" : "POST"
+    const url = edit
+      ? `http://localhost:5000/api/products/${edit._id}`
+      : "http://localhost:5000/api/products"
+
+    await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
+    })
+
+    setForm({ name: "", price: "", description: "", image: "" })
+    setEdit(null)
+    fetchProducts()
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow">
+      <h2 className="text-xl font-heading mb-4">
+        {edit ? "Editar Produto" : "Novo Produto"}
+      </h2>
+      <input name="name" placeholder="Nome" value={form.name} onChange={handleChange}
+        className="border px-3 py-2 w-full mb-2" />
+      <input name="price" placeholder="Preço" type="number" value={form.price} onChange={handleChange}
+        className="border px-3 py-2 w-full mb-2" />
+      <input name="image" placeholder="URL da Imagem" value={form.image} onChange={handleChange}
+        className="border px-3 py-2 w-full mb-2" />
+      <textarea name="description" placeholder="Descrição" value={form.description} onChange={handleChange}
+        className="border px-3 py-2 w-full mb-2" />
+      <button type="submit" className="bg-dark text-white px-4 py-2 rounded">
+        {edit ? "Atualizar" : "Cadastrar"}
+      </button>
+    </form>
+  )
+}
+
+export default AdminForm
